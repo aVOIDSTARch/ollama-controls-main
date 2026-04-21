@@ -1,0 +1,3 @@
+[workspace]
+members = ["ollama-controls", "ollama-controls-api"]
+resolver = "2"
