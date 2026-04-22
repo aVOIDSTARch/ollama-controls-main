@@ -16,3 +16,24 @@ available binaries: ollama-api, ollama-controls-api
 loaded environment from /Users/louisc/ollama-controls-main/.env
 API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
 ollama-controls-api listening on http://127.0.0.1:3000
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://127.0.0.1:3000
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://127.0.0.1:3000
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on artifact directory
+   Compiling ring v0.17.14
+   Compiling rustls-webpki v0.103.13
+   Compiling rustls v0.23.38
+   Compiling ureq v2.12.1
+   Compiling ollama-controls v0.1.0 (/Users/louisc/ollama-controls-main/ollama-controls)
+   Compiling ollama-controls-api v0.1.0 (/Users/louisc/ollama-controls-main/ollama-controls-api)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.11s
+     Running `target/debug/ollama-controls-api`
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://0.0.0.0:3000

@@ -25,3 +25,42 @@ fail-academy listening on http://127.0.0.1:3005
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.90s
      Running `target/debug/fail-academy`
 fail-academy listening on http://127.0.0.1:3005
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.38
+   Compiling rustls-webpki v0.103.13
+   Compiling ureq v2.12.1
+   Compiling ollama-api-client v0.1.0 (/Users/louisc/ollama-controls-main/ollama-api-client)
+   Compiling fail-academy v0.1.0 (/Users/louisc/ollama-controls-main/fail-academy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.44s
+     Running `target/debug/fail-academy`
+fail-academy listening on http://127.0.0.1:3005
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.38
+   Compiling rustls-webpki v0.103.13
+   Compiling ureq v2.12.1
+   Compiling ollama-api-client v0.1.0 (/Users/louisc/ollama-controls-main/ollama-api-client)
+   Compiling fail-academy v0.1.0 (/Users/louisc/ollama-controls-main/fail-academy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.38s
+     Running `target/debug/fail-academy`
+fail-academy listening on http://127.0.0.1:3005
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.38
+   Compiling rustls-webpki v0.103.13
+   Compiling ureq v2.12.1
+   Compiling ollama-api-client v0.1.0 (/Users/louisc/ollama-controls-main/ollama-api-client)
+   Compiling fail-academy v0.1.0 (/Users/louisc/ollama-controls-main/fail-academy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.25s
+     Running `target/debug/fail-academy`
+fail-academy listening on http://127.0.0.1:3005
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.38
+   Compiling rustls-webpki v0.103.13
+   Compiling ureq v2.12.1
+   Compiling ollama-api-client v0.1.0 (/Users/louisc/ollama-controls-main/ollama-api-client)
+   Compiling fail-academy v0.1.0 (/Users/louisc/ollama-controls-main/fail-academy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.92s
+     Running `target/debug/fail-academy`
+fail-academy listening on http://0.0.0.0:3005
