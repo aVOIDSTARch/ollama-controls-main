@@ -1,4 +1,4 @@
-use axum::extract::State;
+use axum::extract::{Query, State};
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse, Response};
 use axum::routing::{get, post};
@@ -44,6 +44,44 @@ struct AdminGenerateBody {
     prompt: String,
 }
 
+#[derive(Deserialize)]
+struct NameQuery {
+    name: String,
+}
+
+#[derive(Deserialize)]
+struct CopyBody {
+    source: String,
+    destination: String,
+}
+
+#[derive(Deserialize)]
+struct CreateBody {
+    name: String,
+    modelfile: String,
+}
+
+#[derive(Deserialize)]
+struct CreateFromBaseBody {
+    new_name: String,
+    from_model: String,
+}
+
+#[derive(Deserialize)]
+struct UnloadBody {
+    model: String,
+}
+
+#[derive(Deserialize)]
+struct RemoveExceptBody {
+    keep: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct ModelsPathBody {
+    path: String,
+}
+
 #[tokio::main]
 async fn main() {
     let _ = dotenvy::dotenv();
@@ -65,7 +103,23 @@ async fn main() {
         .route("/admin", get(admin_page))
         .route("/admin/login", post(admin_login))
         .route("/admin/api/tags", get(admin_tags))
+        .route("/admin/api/ps", get(admin_ps))
+        .route("/admin/api/show", get(admin_show))
         .route("/admin/api/pull", post(admin_pull))
+        .route("/admin/api/delete", post(admin_delete))
+        .route("/admin/api/copy", post(admin_copy))
+        .route("/admin/api/create", post(admin_create))
+        .route("/admin/api/create-from-base", post(admin_create_from_base))
+        .route("/admin/api/unload", post(admin_unload))
+        .route("/admin/api/update-all", post(admin_update_all))
+        .route("/admin/api/remove-except", post(admin_remove_except))
+        .route("/admin/api/inspect/raw", get(admin_inspect_raw))
+        .route("/admin/api/inspect/details", get(admin_inspect_details))
+        .route("/admin/api/service/start", post(admin_service_start))
+        .route("/admin/api/service/stop", post(admin_service_stop))
+        .route("/admin/api/local/models", get(admin_local_models))
+        .route("/admin/api/settings/models-path", get(admin_get_models_path))
+        .route("/admin/api/settings/models-path", post(admin_set_models_path))
         .route("/admin/api/generate", post(admin_generate))
         .nest_service("/public", ServeDir::new("fail-academy/public"))
         .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
@@ -294,6 +348,9 @@ const out = document.getElementById('admin-out');
 document.getElementById('refresh-tags').onclick = async () => {
   const r = await fetch('/admin/api/tags'); out.textContent = JSON.stringify(await r.json(), null, 2);
 };
+document.getElementById('refresh-tags').ondblclick = async () => {
+  const r = await fetch('/admin/api/ps'); out.textContent = JSON.stringify(await r.json(), null, 2);
+};
 document.getElementById('pull-btn').onclick = async () => {
   const name = document.getElementById('pull-name').value.trim();
   const r = await fetch('/admin/api/pull', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name})});
@@ -347,6 +404,31 @@ async fn admin_tags(
         .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
 }
 
+async fn admin_ps(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .list_ps()
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_show(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Query(q): Query<NameQuery>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .show_model(&q.name)
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
 async fn admin_pull(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
@@ -356,6 +438,183 @@ async fn admin_pull(
     state
         .client
         .pull_model(&body.name)
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_delete(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Query(q): Query<NameQuery>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .delete_model(&q.name)
+        .map(|_| Json(json!({"ok": true})))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_copy(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<CopyBody>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .copy_model(&body.source, &body.destination)
+        .map(|_| Json(json!({"ok": true})))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_create(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<CreateBody>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .create_model(&body.name, &body.modelfile)
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_create_from_base(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<CreateFromBaseBody>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .create_from_base(&body.new_name, &body.from_model)
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_unload(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<UnloadBody>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .unload_model(&body.model)
+        .map(|_| Json(json!({"ok": true})))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_update_all(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .update_all()
+        .map(Json)
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_remove_except(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<RemoveExceptBody>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .remove_except(&body.keep)
+        .map(Json)
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_inspect_raw(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Query(q): Query<NameQuery>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .inspect_raw(&q.name)
+        .map(|v| Json(json!({ "raw": v })))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_inspect_details(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Query(q): Query<NameQuery>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .inspect_details(&q.name)
+        .map(Json)
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_service_start(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .service_start()
+        .map(Json)
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_service_stop(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .service_stop()
+        .map(|_| Json(json!({"ok": true})))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_local_models(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .list_local_models()
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_get_models_path(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .get_models_path()
+        .map(|v| Json(json!(v)))
+        .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
+}
+
+async fn admin_set_models_path(
+    State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    Json(body): Json<ModelsPathBody>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<serde_json::Value>)> {
+    require_admin(&headers, &state.dev_api_key)?;
+    state
+        .client
+        .set_models_path(&body.path)
         .map(|v| Json(json!(v)))
         .map_err(|e| (StatusCode::BAD_GATEWAY, Json(json!({ "error": e }))))
 }

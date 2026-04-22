@@ -1,3 +1,3 @@
 [workspace]
-members = ["ollama-api-client","ollama-controls", "ollama-controls-api"]
+members = ["fail-academy","ollama-api-client","ollama-controls", "ollama-controls-api"]
 resolver = "2"
