@@ -1164,6 +1164,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "ollama-api-client"
+version = "0.1.0"
+
+[[package]]
 name = "ollama-controls"
 version = "0.1.0"
 dependencies = [

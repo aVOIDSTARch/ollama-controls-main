@@ -1,0 +1,18 @@
+error: `cargo run` could not determine which binary to run. Use the `--bin` option to specify a binary, or the `default-run` manifest key.
+available binaries: ollama-api, ollama-controls-api
+error: `cargo run` could not determine which binary to run. Use the `--bin` option to specify a binary, or the `default-run` manifest key.
+available binaries: ollama-api, ollama-controls-api
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://127.0.0.1:3000
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://127.0.0.1:3000
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://127.0.0.1:3000
+error: `cargo run` could not determine which binary to run. Use the `--bin` option to specify a binary, or the `default-run` manifest key.
+available binaries: ollama-api, ollama-controls-api
+loaded environment from /Users/louisc/ollama-controls-main/.env
+API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+ollama-controls-api listening on http://127.0.0.1:3000
