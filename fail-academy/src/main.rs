@@ -262,7 +262,7 @@ async fn chat_page() -> Html<String> {
   <h2>Chat Interface</h2>
   <p class="muted">This sends prompts to <code>/api/generate</code> through your local ollama-controls API.</p>
   <label>Model</label>
-  <input id="model" value="llama3.2:latest" />
+  <input id="model" value="deepseek-coder-v2:latest" />
   <label>Your message</label>
   <textarea id="msg" rows="5" placeholder="Ask the FAIL Academy assistant..."></textarea>
   <button id="send">Send</button>
