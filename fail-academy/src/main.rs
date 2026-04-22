@@ -97,7 +97,7 @@ async fn main() {
     let state = Arc::new(AppState { client, dev_api_key });
 
     let app = Router::new()
-        .route("/", get(home_page))
+        .route("/", get(root_entry))
         .route("/chat", get(chat_page))
         .route("/chat/send", post(chat_send))
         .route("/admin", get(admin_page))
@@ -237,6 +237,23 @@ async fn home_page() -> Html<String> {
 </div>
 "#;
     Html(page_shell("FAIL Academy", body))
+}
+
+async fn root_entry(State(state): State<Arc<AppState>>, headers: HeaderMap) -> Html<String> {
+    let host = headers
+        .get(header::HOST)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .split(':')
+        .next()
+        .unwrap_or("");
+    if host.eq_ignore_ascii_case("chat.fail.academy") {
+        return chat_page().await;
+    }
+    if host.eq_ignore_ascii_case("admin.fail.academy") {
+        return admin_page(State(state), headers).await;
+    }
+    home_page().await
 }
 
 async fn chat_page() -> Html<String> {
