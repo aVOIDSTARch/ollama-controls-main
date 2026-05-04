@@ -6,6 +6,7 @@ use axum::{Json, Router};
 use ollama_api_client::OllamaControlsApiClient;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::path::PathBuf;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
@@ -84,9 +85,13 @@ struct ModelsPathBody {
 
 #[tokio::main]
 async fn main() {
-    let _ = dotenvy::dotenv();
+    let _ = dotenvy::from_path(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.env"))
+        .map(|_| ())
+        .or_else(|_| dotenvy::dotenv().map(|_| ()));
     let bind = std::env::var("FAIL_ACADEMY_BIND").unwrap_or_else(|_| "127.0.0.1:3005".to_string());
-    let dev_api_key = std::env::var("DEV_API_KEY").unwrap_or_else(|_| "changeme-dev-key".to_string());
+    let dev_api_key = std::env::var("DEV_API_KEY")
+        .map(|v| v.trim().to_string())
+        .unwrap_or_else(|_| "changeme-dev-key".to_string());
     let upstream_url =
         std::env::var("OLLAMA_CONTROLS_API_URL").unwrap_or_else(|_| "http://127.0.0.1:3000".to_string());
     let upstream_api_key = std::env::var("OLLAMA_CONTROLS_API_KEY")
@@ -388,7 +393,7 @@ async fn admin_login(
     State(state): State<Arc<AppState>>,
     Json(body): Json<AdminLoginBody>,
 ) -> Result<Response, (StatusCode, Json<serde_json::Value>)> {
-    if body.password != state.dev_api_key {
+    if body.password.trim() != state.dev_api_key {
         return Err((StatusCode::UNAUTHORIZED, Json(json!({ "error": "invalid password" }))));
     }
     let mut resp = Json(json!({"ok": true})).into_response();
