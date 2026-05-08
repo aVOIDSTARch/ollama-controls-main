@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::services::ServeDir;
+use tracing_subscriber::EnvFilter;
 
 #[derive(Clone)]
 struct AppState {
@@ -85,6 +86,9 @@ struct ModelsPathBody {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env().add_directive("fail_academy=info".parse().unwrap()))
+        .init();
     let _ = dotenvy::from_path(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.env"))
         .map(|_| ())
         .or_else(|_| dotenvy::dotenv().map(|_| ()));
@@ -133,7 +137,7 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&bind)
         .await
         .unwrap_or_else(|e| panic!("bind {bind}: {e}"));
-    eprintln!("fail-academy listening on http://{bind}");
+    tracing::info!("listening on http://{bind}");
     axum::serve(listener, app).await.expect("server");
 }
 
@@ -287,8 +291,12 @@ btn.addEventListener('click', async () => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({model, message})
     });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'request failed');
+    const text = await r.text();
+    let data;
+    try { data = JSON.parse(text); } catch (_) {
+      throw new Error(`Server returned HTTP ${r.status} — make sure the API and Ollama are running`);
+    }
+    if (!r.ok) throw new Error(data.error || `request failed (${r.status})`);
     out.textContent = data.response;
   } catch (e) {
     out.textContent = 'Error: ' + e.message;
@@ -304,7 +312,12 @@ async fn chat_send(
     Json(body): Json<ChatSendBody>,
 ) -> Result<Json<ChatSendResponse>, (StatusCode, Json<serde_json::Value>)> {
     let model = body.model.unwrap_or_else(|| "llama3.2:latest".to_string());
-    match state.client.generate(&model, &body.message) {
+    let client = state.client.clone();
+    let message = body.message.clone();
+    let result = tokio::task::spawn_blocking(move || client.generate(&model, &message))
+        .await
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() }))))?;
+    match result {
         Ok(r) => Ok(Json(ChatSendResponse {
             response: r.response,
             model: r.model,
