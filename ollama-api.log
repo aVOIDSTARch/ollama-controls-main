@@ -52,3 +52,6 @@ ollama-controls-api listening on http://0.0.0.0:3000
 loaded environment from /Users/louisc/ollama-controls-main/.env
 [2m2026-05-08T01:32:35.281667Z[0m [32m INFO[0m [2mollama_controls_api[0m[2m:[0m API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
 [2m2026-05-08T01:32:35.282124Z[0m [32m INFO[0m [2mollama_controls_api[0m[2m:[0m listening on http://0.0.0.0:3000
+loaded environment from /Users/louisc/ollama-controls-main/.env
+[2m2026-05-08T01:38:02.665258Z[0m [32m INFO[0m [2mollama_controls_api[0m[2m:[0m API key authentication enabled (keystore: /Users/louisc/Library/Application Support/ollama-controls/api-keys.age)
+[2m2026-05-08T01:38:02.665715Z[0m [32m INFO[0m [2mollama_controls_api[0m[2m:[0m listening on http://0.0.0.0:3000

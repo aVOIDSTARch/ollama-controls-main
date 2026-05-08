@@ -109,3 +109,12 @@ fail-academy listening on http://0.0.0.0:3005
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.21s
      Running `target/debug/fail-academy`
 [2m2026-05-08T01:33:02.535573Z[0m [32m INFO[0m [2mfail_academy[0m[2m:[0m listening on http://0.0.0.0:3005
+   Compiling ring v0.17.14
+   Compiling rustls v0.23.38
+   Compiling rustls-webpki v0.103.13
+   Compiling ureq v2.12.1
+   Compiling ollama-api-client v0.1.0 (/Users/louisc/ollama-controls-main/ollama-api-client)
+   Compiling fail-academy v0.1.0 (/Users/louisc/ollama-controls-main/fail-academy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.66s
+     Running `target/debug/fail-academy`
+[2m2026-05-08T01:38:18.275314Z[0m [32m INFO[0m [2mfail_academy[0m[2m:[0m listening on http://0.0.0.0:3005
